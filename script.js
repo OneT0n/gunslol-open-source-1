@@ -28,11 +28,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const rainMusic = document.getElementById('rain-music');
   const animeMusic = document.getElementById('anime-music');
   const carMusic = document.getElementById('car-music');
-  const homeButton = document.getElementById('home-theme');
-  const hackerButton = document.getElementById('hacker-theme');
-  const rainButton = document.getElementById('rain-theme');
-  const animeButton = document.getElementById('anime-theme');
-  const carButton = document.getElementById('car-theme');
   const resultsButtonContainer = document.getElementById('results-button-container');
   const resultsButton = document.getElementById('results-theme');
   const volumeIcon = document.getElementById('volume-icon');
@@ -54,45 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const badges = document.querySelectorAll('.badge');
 
   
-  const cursor = document.querySelector('.custom-cursor');
   const isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
-
-  if (isTouchDevice) {
-    document.body.classList.add('touch-device');
-    
-    document.addEventListener('touchstart', (e) => {
-      const touch = e.touches[0];
-      cursor.style.left = touch.clientX + 'px';
-      cursor.style.top = touch.clientY + 'px';
-      cursor.style.display = 'block';
-    });
-
-    document.addEventListener('touchmove', (e) => {
-      const touch = e.touches[0];
-      cursor.style.left = touch.clientX + 'px';
-      cursor.style.top = touch.clientY + 'px';
-      cursor.style.display = 'block';
-    });
-
-    document.addEventListener('touchend', () => {
-      cursor.style.display = 'none'; 
-    });
-  } else {
-
-    document.addEventListener('mousemove', (e) => {
-      cursor.style.left = e.clientX + 'px';
-      cursor.style.top = e.clientY + 'px';
-      cursor.style.display = 'block';
-    });
-
-    document.addEventListener('mousedown', () => {
-      cursor.style.transform = 'scale(0.8) translate(-50%, -50%)';
-    });
-
-    document.addEventListener('mouseup', () => {
-      cursor.style.transform = 'scale(1) translate(-50%, -50%)';
-    });
-  }
 
 
   const startMessage = "Click here to see the motion baby";
@@ -116,23 +73,38 @@ document.addEventListener('DOMContentLoaded', () => {
   }, 500);
 
 
-  function initializeVisitorCounter() {
-    let totalVisitors = localStorage.getItem('totalVisitorCount');
-    if (!totalVisitors) {
-      totalVisitors = 921234;
-      localStorage.setItem('totalVisitorCount', totalVisitors);
-    } else {
-      totalVisitors = parseInt(totalVisitors);
+  async function initializeVisitorCounter() {
+    try {
+      // Получаем текущий счетчик с сервера
+      const response = await fetch('https://api.countapi.xyz/get/unkly-profile/views');
+      const data = await response.json();
+      
+      if (data.value) {
+        // Увеличиваем счетчик на 1
+        const incrementResponse = await fetch('https://api.countapi.xyz/hit/unkly-profile/views');
+        const incrementData = await incrementResponse.json();
+        
+        visitorCount.textContent = incrementData.value.toLocaleString();
+      } else {
+        // Если счетчик не существует, создаем его
+        const createResponse = await fetch('https://api.countapi.xyz/create?namespace=unkly-profile&key=views&value=1');
+        const createData = await createResponse.json();
+        
+        visitorCount.textContent = '1';
+      }
+    } catch (error) {
+      console.error('Error fetching visitor count:', error);
+      // Fallback к локальному счетчику
+      let totalVisitors = localStorage.getItem('totalVisitorCount');
+      if (!totalVisitors) {
+        totalVisitors = 1;
+        localStorage.setItem('totalVisitorCount', totalVisitors);
+      } else {
+        totalVisitors = parseInt(totalVisitors) + 1;
+        localStorage.setItem('totalVisitorCount', totalVisitors);
+      }
+      visitorCount.textContent = totalVisitors.toLocaleString();
     }
-
-    const hasVisited = localStorage.getItem('hasVisited');
-    if (!hasVisited) {
-      totalVisitors++;
-      localStorage.setItem('totalVisitorCount', totalVisitors);
-      localStorage.setItem('hasVisited', 'true');
-    }
-
-    visitorCount.textContent = totalVisitors.toLocaleString();
   }
 
 
@@ -153,18 +125,6 @@ document.addEventListener('DOMContentLoaded', () => {
         profileContainer.classList.add('orbit');
       }}
     );
-    if (!isTouchDevice) {
-      try {
-        new cursorTrailEffect({
-          length: 10,
-          size: 8,
-          speed: 0.2
-        });
-        console.log("Cursor trail initialized");
-      } catch (err) {
-        console.error("Failed to initialize cursor trail effect:", err);
-      }
-    }
     typeWriterName();
     typeWriterBio();
   });
@@ -184,24 +144,12 @@ document.addEventListener('DOMContentLoaded', () => {
         profileContainer.classList.add('orbit');
       }}
     );
-    if (!isTouchDevice) {
-      try {
-        new cursorTrailEffect({
-          length: 10,
-          size: 8,
-          speed: 0.2
-        });
-        console.log("Cursor trail initialized");
-      } catch (err) {
-        console.error("Failed to initialize cursor trail effect:", err);
-      }
-    }
     typeWriterName();
     typeWriterBio();
   });
 
 
-  const name = "JAQLIV";
+  const name = "unkly";
   let nameText = '';
   let nameIndex = 0;
   let isNameDeleting = false;
@@ -236,8 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
   const bioMessages = [
-    "Fu*k Guns.lol & Fakecrime.bio got banned too often, so I created my own.",
-    "\"Hello, World!\""
+    "анкли, во первых он ща броук, а во вторых сменились ценности..)"
   ];
   let bioText = '';
   let bioIndex = 0;
@@ -430,45 +377,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
 
-  homeButton.addEventListener('click', () => {
-    switchTheme('assets/background.mp4', backgroundMusic, 'home-theme');
-  });
-  homeButton.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    switchTheme('assets/background.mp4', backgroundMusic, 'home-theme');
-  });
-
-  hackerButton.addEventListener('click', () => {
-    switchTheme('assets/hacker_background.mp4', hackerMusic, 'hacker-theme', hackerOverlay, false);
-  });
-  hackerButton.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    switchTheme('assets/hacker_background.mp4', hackerMusic, 'hacker-theme', hackerOverlay, false);
-  });
-
-  rainButton.addEventListener('click', () => {
-    switchTheme('assets/rain_background.mov', rainMusic, 'rain-theme', snowOverlay, true);
-  });
-  rainButton.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    switchTheme('assets/rain_background.mov', rainMusic, 'rain-theme', snowOverlay, true);
-  });
-
-  animeButton.addEventListener('click', () => {
-    switchTheme('assets/anime_background.mp4', animeMusic, 'anime-theme');
-  });
-  animeButton.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    switchTheme('assets/anime_background.mp4', animeMusic, 'anime-theme');
-  });
-
-  carButton.addEventListener('click', () => {
-    switchTheme('assets/car_background.mp4', carMusic, 'car-theme');
-  });
-  carButton.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    switchTheme('assets/car_background.mp4', carMusic, 'car-theme');
-  });
 
  
   function handleTilt(e, element) {
